@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+The @upstash/rag-chat package makes it easy to develop powerful retrieval-augmented generation (RAG) chat applications with minimal setup and configuration.
 
-## Getting Started
+Features:
 
-First, run the development server:
+Next.js compatibility with streaming support
+Ingest entire websites, PDFs and more out of the box
+Built-in Vector store for your knowledge base
+(Optional) built-in Redis compatibility for fast chat history management
+(Optional) built-in rate limiting
+(Optional) disableRag option to use it as LLM + chat history
+(Optional) Analytics via Helicone and Langsmith
+Getting started
+Installation
+Install the package using your preferred package manager:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+npm i @upstash/rag-chat
+Quick start
+Set up your environment variables:
+UPSTASH_VECTOR_REST_URL="XXXXX"
+UPSTASH_VECTOR_REST_TOKEN="XXXXX"
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# if you use OpenAI compatible models
+OPENAI_API_KEY="XXXXX"
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+# or if you use Upstash hosted models
+QSTASH_TOKEN="XXXXX"
 
-## Learn More
+# Optional: For Redis-based chat history (default is in-memory)
+UPSTASH_REDIS_REST_URL="XXXXX"
+UPSTASH_REDIS_REST_TOKEN="XXXXX"
+Initialize and use RAGChat:
+import { RAGChat } from "@upstash/rag-chat";
 
-To learn more about Next.js, take a look at the following resources:
+const ragChat = new RAGChat();
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+const response = await ragChat.chat("Tell me about machine learning");
+console.log(response);
+Basic Usage
+import { RAGChat, openai } from "@upstash/rag-chat";
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+export const ragChat = new RAGChat({
+  model: openai("gpt-4-turbo"),
+});
 
-## Deploy on Vercel
+await ragChat.context.add({
+  type: "text",
+  data: "The speed of light is approximately 299,792,458 meters per second.",
+});
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+await ragChat.context.add({
+  type: "pdf",
+  fileSource: "./data/physics_basics.pdf",
+});
+const response = await ragChat.chat("What is the speed of light?");
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+console.log(response.output);
+Docs
+Checkout the documentation for integrations and advanced options.
